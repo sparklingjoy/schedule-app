@@ -68,7 +68,7 @@
     <div class="container">
       <h1>🚌🚋 国母(工業団地) → 甲府</h1>
       <div class="time-now" id="current-time"></div>
-      <div class="next-bus" id="next-bus-info">次のバスを計算中...</div>
+      <div class="next-bus" id="next-bus-info">次のバス電車を計算中...</div>
       <div style="text-align: center; margin-bottom: 15px">
         <a href="index.html" style="color: #0066cc; text-decoration: none">← 路線一覧に戻る</a>
       </div>
@@ -146,7 +146,7 @@
 
           if (busMinutes > nowMinutes) {
             const diff = busMinutes - nowMinutes;
-            const message = `次のバスは <span class="highlight">${busSchedule[i].time}</span> です（あと <span class="highlight">${diff}</span> 分後です）`;
+            const message = `次のバス電車は <span class="highlight">${busSchedule[i].time}</span> です（あと <span class="highlight">${diff}</span> 分後です）`;
             document.getElementById("next-bus-info").innerHTML = message;
             return;
           }
