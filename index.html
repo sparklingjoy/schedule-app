@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>バス時刻表アプリ</title>
+    <style>
+      body {
+        font-family: "Meiryo", sans-serif;
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f5f5f5;
+      }
+      .container {
+        background-color: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      h1 {
+        color: #333;
+        text-align: center;
+        margin-bottom: 20px;
+      }
+      .next-bus {
+        background-color: #e6f7ff;
+        padding: 15px;
+        border-radius: 5px;
+        margin-bottom: 20px;
+        text-align: center;
+        font-size: 18px;
+      }
+      .highlight {
+        font-weight: bold;
+        color: #0066cc;
+        font-size: 24px;
+      }
+      .time-now {
+        text-align: center;
+        margin-bottom: 10px;
+        font-size: 16px;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+      }
+      th,
+      td {
+        padding: 10px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+      }
+      th {
+        background-color: #f2f2f2;
+      }
+      .next-row {
+        background-color: #e6f7ff;
+      }
+      .note {
+        font-size: 12px;
+        color: #ff3333;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>塩部→甲府 バス時刻表</h1>
+      <div class="time-now" id="current-time"></div>
+      <div class="next-bus" id="next-bus-info">次のバスを計算中...</div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>時刻</th>
+            <th>路線</th>
+            <th>備考</th>
+          </tr>
+        </thead>
+        <tbody id="schedule-body">
+          <!-- スケジュールがここに動的に挿入されます -->
+        </tbody>
+      </table>
+    </div>
+
+    <script>
+      // バスのスケジュールデータ
+      const busSchedule = [
+        { time: "06:41", route: "06", note: "土日祝・8/13〜15運休（平日は運行）" },
+        { time: "07:24", route: "06", note: "土日祝・7/20〜8/25運休（平日は運行）" },
+        { time: "08:00", route: "08", note: "" },
+        { time: "10:35", route: "08", note: "" },
+        { time: "13:55", route: "06", note: "" },
+        { time: "14:45", route: "08", note: "" },
+        { time: "17:35", route: "08", note: "" },
+        { time: "20:24", route: "06", note: "土日祝・8/13〜15運休（平日は運行）" },
+        { time: "21:24", route: "06", note: "土日祝・8/13〜15運休（平日は運行）" },
+      ];
+
+      // 日付文字列をDate型に変換する関数
+      function parseTime(timeStr) {
+        const [hours, minutes] = timeStr.split(":").map(Number);
+        const now = new Date();
+        const time = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hours, minutes);
+        return time;
+      }
+
+      // 次のバスまでの時間を計算する関数
+      function calculateNextBus() {
+        const now = new Date();
+        let nextBus = null;
+        let nextBusMinutes = Infinity;
+
+        for (const bus of busSchedule) {
+          const busTime = parseTime(bus.time);
+
+          // 現在時刻より後のバスを探す
+          if (busTime > now) {
+            const diffMs = busTime - now;
+            const diffMinutes = Math.floor(diffMs / 60000); // ミリ秒から分に変換
+
+            if (diffMinutes < nextBusMinutes) {
+              nextBusMinutes = diffMinutes;
+              nextBus = bus;
+            }
+          }
+        }
+
+        // 次のバスが見つからない場合（今日のバスがすべて終了した場合）
+        if (!nextBus) {
+          // 翌日の最初のバスを次のバスとする
+          nextBus = busSchedule[0];
+          const tomorrowBusTime = parseTime(nextBus.time);
+          tomorrowBusTime.setDate(tomorrowBusTime.getDate() + 1); // 明日の日付に設定
+          const diffMs = tomorrowBusTime - now;
+          nextBusMinutes = Math.floor(diffMs / 60000); // ミリ秒から分に変換
+        }
+
+        const hours = Math.floor(nextBusMinutes / 60);
+        const minutes = nextBusMinutes % 60;
+
+        let timeDisplay = "";
+        if (hours > 0) {
+          timeDisplay = `${hours}時間${minutes}分`;
+        } else {
+          timeDisplay = `${minutes}分`;
+        }
+
+        document.getElementById("next-bus-info").innerHTML = `
+                次のバスは <span class="highlight">${nextBus.time}</span> 発（路線: ${nextBus.route}）まで
+                <span class="highlight">${timeDisplay}</span> です
+                ${nextBus.note ? `<div class="note">${nextBus.note}</div>` : ""}
+            `;
+
+        // テーブル内の全ての行から「next-row」クラスを削除
+        const rows = document.querySelectorAll("#schedule-body tr");
+        rows.forEach((row) => row.classList.remove("next-row"));
+
+        // 次のバスの行に「next-row」クラスを追加
+        const nextBusIndex = busSchedule.indexOf(nextBus);
+        if (nextBusIndex >= 0 && nextBusIndex < rows.length) {
+          rows[nextBusIndex].classList.add("next-row");
+        }
+      }
+
+      // スケジュールテーブルを描画する関数
+      function renderScheduleTable() {
+        const tableBody = document.getElementById("schedule-body");
+        tableBody.innerHTML = "";
+
+        busSchedule.forEach((bus) => {
+          const row = document.createElement("tr");
+
+          const timeCell = document.createElement("td");
+          timeCell.textContent = bus.time;
+          row.appendChild(timeCell);
+
+          const routeCell = document.createElement("td");
+          routeCell.textContent = bus.route;
+          row.appendChild(routeCell);
+
+          const noteCell = document.createElement("td");
+          noteCell.textContent = bus.note;
+          noteCell.className = "note";
+          row.appendChild(noteCell);
+
+          tableBody.appendChild(row);
+        });
+      }
+
+      // 現在時刻を表示する関数
+      function updateCurrentTime() {
+        const now = new Date();
+        const hours = String(now.getHours()).padStart(2, "0");
+        const minutes = String(now.getMinutes()).padStart(2, "0");
+        const seconds = String(now.getSeconds()).padStart(2, "0");
+        document.getElementById("current-time").textContent = `現在時刻: ${hours}:${minutes}:${seconds}`;
+      }
+
+      // ページ読み込み時の初期化
+      window.onload = function () {
+        renderScheduleTable();
+        updateCurrentTime();
+        calculateNextBus();
+
+        // 1秒ごとに時刻を更新
+        setInterval(updateCurrentTime, 1000);
+
+        // 10秒ごとに次のバス情報を更新
+        setInterval(calculateNextBus, 10000);
+      };
+    </script>
+  </body>
+</html>
