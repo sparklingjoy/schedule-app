@@ -36,6 +36,10 @@
         color: #0066cc;
         font-size: 24px;
       }
+      .second-bus {
+        font-size: 16px;
+        margin-top: 8px;
+      }
       .time-now {
         text-align: center;
         margin-bottom: 10px;
@@ -139,20 +143,46 @@
       function calculateNextBus() {
         const now = new Date();
         const nowMinutes = now.getHours() * 60 + now.getMinutes();
+        let foundFirst = false;
+        let firstBusIndex = -1;
+        let secondBusIndex = -1;
 
         for (let i = 0; i < busSchedule.length; i++) {
           const timeParts = busSchedule[i].time.split(":");
           const busMinutes = parseInt(timeParts[0]) * 60 + parseInt(timeParts[1]);
 
           if (busMinutes > nowMinutes) {
-            const diff = busMinutes - nowMinutes;
-            const message = `次のバス電車は <span class="highlight">${busSchedule[i].time}</span> です（あと <span class="highlight">${diff}</span> 分後です）`;
-            document.getElementById("next-bus-info").innerHTML = message;
-            return;
+            if (!foundFirst) {
+              foundFirst = true;
+              firstBusIndex = i;
+            } else {
+              secondBusIndex = i;
+              break;
+            }
           }
         }
 
-        document.getElementById("next-bus-info").textContent = "本日の運行は終了しました。";
+        const nextBusInfo = document.getElementById("next-bus-info");
+
+        if (firstBusIndex !== -1) {
+          const firstBusTimeParts = busSchedule[firstBusIndex].time.split(":");
+          const firstBusMinutes = parseInt(firstBusTimeParts[0]) * 60 + parseInt(firstBusTimeParts[1]);
+          const firstDiff = firstBusMinutes - nowMinutes;
+
+          let message = `次のバス/電車は <span class="highlight">${busSchedule[firstBusIndex].time}</span> です（あと <span class="highlight">${firstDiff}</span> 分後です）`;
+
+          if (secondBusIndex !== -1) {
+            const secondBusTimeParts = busSchedule[secondBusIndex].time.split(":");
+            const secondBusMinutes = parseInt(secondBusTimeParts[0]) * 60 + parseInt(secondBusTimeParts[1]);
+            const secondDiff = secondBusMinutes - nowMinutes;
+
+            message += `<div class="second-bus">その次は <span class="highlight">${busSchedule[secondBusIndex].time}</span> です（あと <span class="highlight">${secondDiff}</span> 分後です）</div>`;
+          }
+
+          nextBusInfo.innerHTML = message;
+        } else {
+          nextBusInfo.textContent = "本日の運行は終了しました。";
+        }
       }
     </script>
   </body>
