@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title🚌時刻表アプリ</title>
+    <style>
+      body {
+        font-family: "Meiryo", "Hiragino Kaku Gothic Pro", "MS PGothic", sans-serif;
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f5f5f5;
+      }
+      .container {
+        background-color: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      h1 {
+        color: #333;
+        text-align: center;
+        margin-bottom: 20px;
+      }
+      .next-bus {
+        background-color: #e6f7ff;
+        padding: 15px;
+        border-radius: 5px;
+        margin-bottom: 20px;
+        text-align: center;
+        font-size: 18px;
+      }
+      .highlight {
+        font-weight: bold;
+        color: #0066cc;
+        font-size: 24px;
+      }
+      .time-now {
+        text-align: center;
+        margin-bottom: 10px;
+        font-size: 16px;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+      }
+      th,
+      td {
+        padding: 10px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+      }
+      th {
+        background-color: #f2f2f2;
+      }
+      .next-row {
+        background-color: #e6f7ff;
+      }
+      .note {
+        font-size: 12px;
+        color: #ff3333;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🚌 自宅 → 甲府駅</h1>
+      <div class="time-now" id="current-time"></div>
+      <div class="next-bus" id="next-bus-info">次のバスを計算中...</div>
+      <div style="text-align: center; margin-bottom: 15px">
+        <a href="kofu-jitaku.html" style="color: #0066cc; text-decoration: none">← 甲府→自宅に戻る</a>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>時刻</th>
+            <th>路線</th>
+            <th>備考</th>
+          </tr>
+        </thead>
+        <tbody id="schedule-body">
+          <!-- スケジュールがここに動的に挿入されます -->
+        </tbody>
+      </table>
+    </div>
+
+    <script>
+      let busSchedule = [];
+
+      // JSONファイルを読み込む
+      fetch("data/jitaku-kofu.json")
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then((data) => {
+          busSchedule = data;
+          renderScheduleTable();
+          calculateNextBus();
+
+          updateCurrentTime();
+          setInterval(updateCurrentTime, 1000);
+          setInterval(calculateNextBus, 10000);
+        })
+        .catch((error) => {
+          console.error("JSONの読み込みに失敗しました:", error);
+          document.getElementById("next-bus-info").textContent = "データの読み込みに失敗しました。";
+        });
+
+      function updateCurrentTime() {
+        const now = new Date();
+        const timeStr = now.toLocaleTimeString("ja-JP", {
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+        });
+        const currentTimeElements = document.querySelectorAll("#current-time");
+        currentTimeElements.forEach((el) => (el.textContent = `現在時刻：${timeStr}`));
+      }
+
+      function renderScheduleTable() {
+        const tbody = document.getElementById("schedule-body");
+        tbody.innerHTML = "";
+        busSchedule.forEach((bus) => {
+          const row = document.createElement("tr");
+          row.innerHTML = `
+              <td>${bus.time}</td>
+              <td>${bus.route}</td>
+              <td>${bus.note || ""}</td>
+            `;
+          tbody.appendChild(row);
+        });
+      }
+
+      function calculateNextBus() {
+        const now = new Date();
+        const nowMinutes = now.getHours() * 60 + now.getMinutes();
+        let foundFirst = false;
+        let firstBusIndex = -1;
+        let secondBusIndex = -1;
+
+        for (let i = 0; i < busSchedule.length; i++) {
+          const timeParts = busSchedule[i].time.split(":");
+          const busMinutes = parseInt(timeParts[0]) * 60 + parseInt(timeParts[1]);
+
+          if (busMinutes > nowMinutes) {
+            if (!foundFirst) {
+              foundFirst = true;
+              firstBusIndex = i;
+            } else {
+              secondBusIndex = i;
+              break;
+            }
+          }
+        }
+
+        const nextBusInfo = document.getElementById("next-bus-info");
+
+        if (firstBusIndex !== -1) {
+          const firstBusTimeParts = busSchedule[firstBusIndex].time.split(":");
+          const firstBusMinutes = parseInt(firstBusTimeParts[0]) * 60 + parseInt(firstBusTimeParts[1]);
+          const firstDiff = firstBusMinutes - nowMinutes;
+
+          let message = `次のバスは <span class="highlight">${busSchedule[firstBusIndex].time}</span> です（あと <span class="highlight">${firstDiff}</span> 分後です）`;
+
+          if (secondBusIndex !== -1) {
+            const secondBusTimeParts = busSchedule[secondBusIndex].time.split(":");
+            const secondBusMinutes = parseInt(secondBusTimeParts[0]) * 60 + parseInt(secondBusTimeParts[1]);
+            const secondDiff = secondBusMinutes - nowMinutes;
+
+            message += `<div class="second-bus">その次は <span class="highlight">${busSchedule[secondBusIndex].time}</span> です（あと <span class="highlight">${secondDiff}</span> 分後です）</div>`;
+          }
+
+          nextBusInfo.innerHTML = message;
+        } else {
+          nextBusInfo.textContent = "本日の運行は終了しました。";
+        }
+      }
+    </script>
+  </body>
+</html>
