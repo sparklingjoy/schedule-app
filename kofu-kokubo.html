@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>🚋🚌時刻表アプリ</title>
+    <title>バス電車時刻表アプリ</title>
     <style>
       body {
         font-family: "Meiryo", "Hiragino Kaku Gothic Pro", "MS PGothic", sans-serif;
@@ -22,6 +22,11 @@
         color: #333;
         text-align: center;
         margin-bottom: 20px;
+      }
+      h2 {
+        color: #333;
+        text-align: center;
+        margin-bottom: 8px;
       }
       .next-bus {
         background-color: #e6f7ff;
@@ -70,9 +75,10 @@
   </head>
   <body>
     <div class="container">
-      <h1>🚋🚌 甲府→国母(工業団地入口)</h1>
+      <h1>甲府から国母方面</h1>
+      <h2>🚃JR国母駅 または 🚌国母工業団地入口へ</h2>
       <div class="time-now" id="current-time"></div>
-      <div class="next-bus" id="next-bus-info">次のバス電車を計算中...</div>
+      <div class="next-bus" id="next-bus-info">次のバス/電車を計算中...</div>
       <div style="text-align: center; margin-bottom: 15px">
         <a href="index.html" style="color: #0066cc; text-decoration: none">← 路線一覧に戻る</a>
       </div>
