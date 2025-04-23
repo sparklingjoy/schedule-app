@@ -175,14 +175,22 @@
           const firstBusMinutes = parseInt(firstBusTimeParts[0]) * 60 + parseInt(firstBusTimeParts[1]);
           const firstDiff = firstBusMinutes - nowMinutes;
 
-          let message = `次のバス/電車は <span class="highlight">${busSchedule[firstBusIndex].time}</span> です（あと <span class="highlight">${firstDiff}</span> 分後です）`;
+          // 路線情報に基づいてメッセージを変更
+          const firstIsJR = busSchedule[firstBusIndex].route.includes("JR身延線");
+          let message = firstIsJR
+            ? `次は電車で <span class="highlight">${busSchedule[firstBusIndex].time}</span> です（あと <span class="highlight">${firstDiff}</span> 分後です）`
+            : `次はバスで <span class="highlight">${busSchedule[firstBusIndex].time}</span> です（あと <span class="highlight">${firstDiff}</span> 分後です）`;
 
           if (secondBusIndex !== -1) {
             const secondBusTimeParts = busSchedule[secondBusIndex].time.split(":");
             const secondBusMinutes = parseInt(secondBusTimeParts[0]) * 60 + parseInt(secondBusTimeParts[1]);
             const secondDiff = secondBusMinutes - nowMinutes;
 
-            message += `<div class="second-bus">その次は <span class="highlight">${busSchedule[secondBusIndex].time}</span> です（あと <span class="highlight">${secondDiff}</span> 分後です）</div>`;
+            // 2番目の交通機関についても路線情報に基づいてメッセージを変更
+            const secondIsJR = busSchedule[secondBusIndex].route.includes("JR身延線");
+            message += `<div class="second-bus">その次は${secondIsJR ? "電車" : "バス"}で <span class="highlight">${
+              busSchedule[secondBusIndex].time
+            }</span> です（あと <span class="highlight">${secondDiff}</span> 分後です）</div>`;
           }
 
           nextBusInfo.innerHTML = message;
