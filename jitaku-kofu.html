@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title🚌時刻表アプリ</title>
+    <title>🚌時刻表アプリ</title>
     <style>
       body {
         font-family: "Meiryo", "Hiragino Kaku Gothic Pro", "MS PGothic", sans-serif;
@@ -61,6 +61,10 @@
       .note {
         font-size: 12px;
         color: #ff3333;
+      }
+      .second-bus {
+        margin-top: 10px;
+        font-size: 16px;
       }
     </style>
   </head>
@@ -165,14 +169,18 @@
           const firstBusMinutes = parseInt(firstBusTimeParts[0]) * 60 + parseInt(firstBusTimeParts[1]);
           const firstDiff = firstBusMinutes - nowMinutes;
 
-          let message = `次のバスは <span class="highlight">${busSchedule[firstBusIndex].time}</span> です（あと <span class="highlight">${firstDiff}</span> 分後です）`;
+          // 路線情報に基づいてバス停の場所を決定
+          const firstBusStop = busSchedule[firstBusIndex].route.includes("塩部") ? "塩部" : "福祉プラザ";
+          let message = `次は${firstBusStop}で <span class="highlight">${busSchedule[firstBusIndex].time}</span> です（あと <span class="highlight">${firstDiff}</span> 分後です）`;
 
           if (secondBusIndex !== -1) {
             const secondBusTimeParts = busSchedule[secondBusIndex].time.split(":");
             const secondBusMinutes = parseInt(secondBusTimeParts[0]) * 60 + parseInt(secondBusTimeParts[1]);
             const secondDiff = secondBusMinutes - nowMinutes;
 
-            message += `<div class="second-bus">その次は <span class="highlight">${busSchedule[secondBusIndex].time}</span> です（あと <span class="highlight">${secondDiff}</span> 分後です）</div>`;
+            // 2番目のバスについても路線情報に基づいてバス停の場所を決定
+            const secondBusStop = busSchedule[secondBusIndex].route.includes("塩部") ? "塩部" : "福祉プラザ";
+            message += `<div class="second-bus">その次は${secondBusStop}で <span class="highlight">${busSchedule[secondBusIndex].time}</span> です（あと <span class="highlight">${secondDiff}</span> 分後です）</div>`;
           }
 
           nextBusInfo.innerHTML = message;
