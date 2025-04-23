@@ -168,8 +168,8 @@
           // 路線情報に基づいてメッセージを変更
           const isShiobu = busSchedule[firstBusIndex].route.includes("塩部");
           let message = isShiobu
-            ? `次のバスは南4番乗り場 <span class="highlight">${busSchedule[firstBusIndex].time}</span> です（あと <span class="highlight">${firstDiff}</span> 分後です）`
-            : `次のバスは北1番乗り場 <span class="highlight">${busSchedule[firstBusIndex].time}</span> です（あと <span class="highlight">${firstDiff}</span> 分後です）`;
+            ? `次のバスは南4 <span class="highlight">${busSchedule[firstBusIndex].time}</span> です（あと <span class="highlight">${firstDiff}</span> 分後です）`
+            : `次のバスは北1 <span class="highlight">${busSchedule[firstBusIndex].time}</span> です（あと <span class="highlight">${firstDiff}</span> 分後です）`;
 
           if (secondBusIndex !== -1) {
             const secondBusTimeParts = busSchedule[secondBusIndex].time.split(":");
@@ -178,7 +178,7 @@
 
             // 2番目のバスについても路線情報に基づいてメッセージを変更
             const secondIsShiobu = busSchedule[secondBusIndex].route.includes("塩部");
-            message += `<div class="second-bus">その次のバスは${secondIsShiobu ? "南4番乗り場" : "北1番乗り場"} <span class="highlight">${
+            message += `<div class="second-bus">その次のバスは${secondIsShiobu ? "南4" : "北1"} <span class="highlight">${
               busSchedule[secondBusIndex].time
             }</span> です（あと <span class="highlight">${secondDiff}</span> 分後です）</div>`;
           }
