@@ -62,15 +62,19 @@
         font-size: 12px;
         color: #ff3333;
       }
+      .second-bus {
+        margin-top: 10px;
+        font-size: 16px;
+      }
     </style>
   </head>
   <body>
     <div class="container">
-      <h1>🚌 甲府駅 → 自宅</h1>
+      <h1>🚌 甲府駅 から 自宅へ</h1>
       <div class="time-now" id="current-time"></div>
       <div class="next-bus" id="next-bus-info">次のバスを計算中...</div>
       <div style="text-align: center; margin-bottom: 15px">
-        <a href="jitaku-kofu.html" style="color: #0066cc; text-decoration: none">← 自宅→甲府に戻る</a>
+        <a href="jitaku-kofu.html" style="color: #0066cc; text-decoration: none">自宅から甲府に戻る</a>
       </div>
       <table>
         <thead>
@@ -168,8 +172,8 @@
           // 路線情報に基づいてメッセージを変更
           const isShiobu = busSchedule[firstBusIndex].route.includes("塩部");
           let message = isShiobu
-            ? `次のバスは南4 <span class="highlight">${busSchedule[firstBusIndex].time}</span> です（あと <span class="highlight">${firstDiff}</span> 分後です）`
-            : `次のバスは北1 <span class="highlight">${busSchedule[firstBusIndex].time}</span> です（あと <span class="highlight">${firstDiff}</span> 分後です）`;
+            ? `次のバスは<span style="color: orange;">南4</span>で <span class="highlight">${busSchedule[firstBusIndex].time}</span> です（あと <span class="highlight">${firstDiff}</span> 分後です）`
+            : `次のバスは<span style="color: orange;">北1</span>で <span class="highlight">${busSchedule[firstBusIndex].time}</span> です（あと <span class="highlight">${firstDiff}</span> 分後です）`;
 
           if (secondBusIndex !== -1) {
             const secondBusTimeParts = busSchedule[secondBusIndex].time.split(":");
@@ -178,7 +182,7 @@
 
             // 2番目のバスについても路線情報に基づいてメッセージを変更
             const secondIsShiobu = busSchedule[secondBusIndex].route.includes("塩部");
-            message += `<div class="second-bus">その次のバスは${secondIsShiobu ? "南4" : "北1"} <span class="highlight">${
+            message += `<div class="second-bus">その次のバスは<span style="color: orange;">${secondIsShiobu ? "南4" : "北1"}</span>で <span class="highlight">${
               busSchedule[secondBusIndex].time
             }</span> です（あと <span class="highlight">${secondDiff}</span> 分後です）</div>`;
           }
